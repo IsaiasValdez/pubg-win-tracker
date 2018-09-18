@@ -7,6 +7,7 @@ const { AccountConnections, MatchStats, UserMatches } = require('../dbObjects');
 const PUBGAPI = require('../pubgapi');
 const PUBGAPI_TOKEN = process.env.PUBGAPI_TOKEN;
 
+// function to parse server name win counter
 const parseServerName = (name, wins) => {
     if (name.split(serverNameDelimiter).length < 2) {
         return `${name}${serverNameDelimiter}${wins}`;

@@ -1,6 +1,6 @@
 {
     "prefix": "!",
-    "useSqlite": false,
+    "useSqlite": true,
     "serverNameDelimiter": " - ",
     "matchSearchAmount": 10
 }

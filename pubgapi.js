@@ -17,8 +17,6 @@ class PUBGApi {
     }
 
     async getPlayerMatchIDs(shard, playerID) {
-        if (matchSearchAmount > 30) { return false; }
-        // console.log('starting');
 
         return await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/players/${playerID}`, {
             headers: {
