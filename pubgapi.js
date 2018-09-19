@@ -57,9 +57,15 @@ class PUBGApi {
         });
     }
 
+    // get match data on an array of match ids
+    async getMatchesData(shard, matchIDs) {
+        return Promise.all(matchIDs.map(id => {
+            return this.requestMatchData(shard, id);
+        }));
+    }
+
     // request a match's data via a match id
     async requestMatchData(shard, matchID) {
-
         const matchData = await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/matches/${matchID}`, {
             headers: { 'Accept': 'application/json' },
         })
@@ -86,37 +92,6 @@ class PUBGApi {
         });
 
         return matchData;
-    }
-
-    async getMatchesData(shard, matchIDs) {
-        return await Promise.all(matchIDs.map(async id => {
-            const requestMatch = await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/matches/${id}`, {
-                headers: { 'Accept': 'application/json' },
-            })
-            .catch(err => {
-                const statusCode = err.status;
-                if (statusCode === 404) {
-                    // return message.reply('PUBG account not found! Make sure name casing is accurate or try a different region!');
-                }
-                else if (statusCode === 429) {
-                    // return message.reply('too many requests! Please wait a minute and try again!');
-                }
-                else if (statusCode === 401) {
-                    // return message.reply('API authorization failure! Please contact the developer!');
-                }
-                else if (statusCode === 415) {
-                    // return message.reply('content type error! Please contact the developer!');
-                }
-                else {
-                    // console.error(err);
-                    console.log(`Status: ${statusCode}`);
-                }
-
-                return statusCode;
-            });
-
-            return requestMatch;
-        }));
     }
 
     async getStatsFromDinners(matchesData, playerID, guildID) {
