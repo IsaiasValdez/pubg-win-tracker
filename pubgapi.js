@@ -1,4 +1,4 @@
-'user strict';
+'use strict';
 
 const snekfetch = require('snekfetch');
 const { AccountConnections } = require('./dbObjects');
