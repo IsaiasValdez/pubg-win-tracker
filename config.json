@@ -2,5 +2,5 @@
     "prefix": "!",
     "useSqlite": true,
     "serverNameDelimiter": " - ",
-    "matchSearchAmount": 10
+    "maxMatchSearchAmount": 10
 }

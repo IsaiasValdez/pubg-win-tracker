@@ -2,7 +2,7 @@
 
 const snekfetch = require('snekfetch');
 const { AccountConnections } = require('./dbObjects');
-const { matchSearchAmount } = require('./config.json');
+const { maxMatchSearchAmount } = require('./config.json');
 const bannedGamemodes = ['warmode', 'warmode-fpp'];
 
 const isSolo = (mode) => {
@@ -16,6 +16,7 @@ class PUBGApi {
         this.authkey = authkey;
     }
 
+    // obtains match ids of player's recent games
     async getPlayerMatchIDs(shard, playerID) {
 
         return await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/players/${playerID}`, {
@@ -25,10 +26,13 @@ class PUBGApi {
             },
         })
         .then(account => {
-            // get last ids of last 10 matches
-            // console.log('success');
-            // console.log(account.body.data.relationships.matches.data.slice(0, amount).map(m => m.id));
-            return account.body.data.relationships.matches.data.slice(0, matchSearchAmount).map(m => m.id);
+            // store matches data
+            const matchesData = account.body.data.relationships.matches.data;
+            // calculate slice amount to handle less than search amount of games
+            const matchSearchAmount = maxMatchSearchAmount - (maxMatchSearchAmount - matchesData.length);
+            // console.log('Total Matches Searched: ' + matchSearchAmount);
+            // return array of match ids
+            return matchesData.slice(0, matchSearchAmount).map(m => m.id);
         })
         .catch(err => {
             // console.log('problem!');
@@ -51,6 +55,35 @@ class PUBGApi {
             }
             return false;
         });
+    }
+
+    // request a match's data via a match id
+    async requestMatchData(shard, matchID) {
+
+        const matchData = await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/matches/${matchID}`, {
+            headers: { 'Accept': 'application/json' },
+        })
+        .catch(err => {
+            const statusCode = err.status;
+            switch (statusCode) {
+                case 404:
+                    console.log('PUBG account not found! Make sure name casing is accurate or try a different region!');
+                    return null;
+                case 429:
+                    console.log('too many requests! Please wait a minute and try again!');
+                    return null;
+                case 401:
+                    console.log('API authorization failure! Please contact the developer!');
+                    return null;
+                case 415:
+                    console.log('content type error! Please contact the developer!');
+                    return null;
+                default:
+                    return null;
+            }
+        });
+
+        return matchData;
     }
 
     async getMatchesData(shard, matchIDs) {
