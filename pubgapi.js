@@ -68,19 +68,21 @@ class PUBGApi {
             switch (statusCode) {
                 case 404:
                     console.log('PUBG account not found! Make sure name casing is accurate or try a different region!');
-                    return null;
+                    break;
                 case 429:
                     console.log('too many requests! Please wait a minute and try again!');
-                    return null;
+                    break;
                 case 401:
                     console.log('API authorization failure! Please contact the developer!');
-                    return null;
+                    break;
                 case 415:
                     console.log('content type error! Please contact the developer!');
-                    return null;
+                    break;
                 default:
-                    return null;
+                    console.log(err);
             }
+
+            return null;
         });
 
         return matchData;
