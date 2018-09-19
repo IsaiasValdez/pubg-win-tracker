@@ -9,6 +9,7 @@ const PUBGAPI_TOKEN = process.env.PUBGAPI_TOKEN;
 
 // function to parse server name win counter
 const parseServerName = (name, wins) => {
+    // 
     if (name.split(serverNameDelimiter).length < 2) {
         return `${name}${serverNameDelimiter}${wins}`;
     }
@@ -99,7 +100,7 @@ module.exports = {
         // container to hold valid match ids
         const validChoices = [];
         // filter to only following messages by author
-        const filter = response => {
+        const filter = (response) => {
             return message.author.id === response.author.id;
         };
 

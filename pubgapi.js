@@ -10,6 +10,12 @@ const isSolo = (mode) => {
     else { return false; }
 };
 
+class PlayerMatchStats {
+    constructor() {
+
+    }
+}
+
 class PUBGApi {
 
     constructor(authkey) {
@@ -94,9 +100,34 @@ class PUBGApi {
         return matchData;
     }
 
+    // check if player won the match
+    playerWonMatch(matchData, playerID) {
+        // filter participants data from match data
+        const matchParticipants = matchData.body.included.filter(object => object.type === 'participant');
+
+        // find player ID in participants data
+        for (let i = 0; i < matchParticipants.length; i++) {
+            // store current particpant data
+            const currentParticpant = matchParticipants[i];
+            // check if current participant is the player
+            if (currentParticpant.attributes.stats.playerId === playerID) {
+                const currentStats = currentParticpant.attributes.stats;
+                // check if player won game
+                if (currentStats.winPlace === 1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+
     async getStatsFromDinners(matchesData, playerID, guildID) {
         const allMatchesParts = matchesData.map(mdata => {
-            return mdata.body.included.filter(object => object.type == 'participant');
+            return mdata.body.included.filter(object => object.type === 'participant');
         });
 
         // track which games are wins and thus need to be checked
