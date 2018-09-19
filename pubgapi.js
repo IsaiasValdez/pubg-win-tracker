@@ -125,7 +125,16 @@ class PUBGApi {
         return false;
     }
 
+    // filter out match wins from an array of matches
+    filterWins(matches, playerID) {
+        return matches.filter((mdata) => {
+            return this.playerWonMatch(mdata, playerID);
+        });
+    }
+
     async getStatsFromDinners(matchesData, playerID, guildID) {
+        console.log(this.filterWins(matchesData, playerID).length);
+        return;
         const allMatchesParts = matchesData.map(mdata => {
             return mdata.body.included.filter(object => object.type === 'participant');
         });
