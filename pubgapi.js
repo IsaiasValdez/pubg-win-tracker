@@ -132,6 +132,14 @@ class PUBGApi {
         });
     }
 
+    async getStatsFromWins(matchesData, playerID, guildID) {
+        const chickenDinnersData = this.filterWins(matchesData, playerID);
+
+        for (let i = 0; i < chickenDinnersData.length; i++) {
+            const gamemode = chickenDinnersData[i].body.data.attributes.gameMod;
+        }
+    }
+
     async getStatsFromDinners(matchesData, playerID, guildID) {
         console.log(this.filterWins(matchesData, playerID).length);
         return;
