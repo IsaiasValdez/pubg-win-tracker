@@ -64,7 +64,7 @@ module.exports = {
         if(pubgAccountID == null) { return message.reply('you must have a connected PUBG account to do that!'); }
 
         // get author's recent pubg match ids
-        const matchIDs = await pubgAPI.getPlayerMatchIDs(shard, pubgAccountID);
+        const matchIDs = await pubgAPI.getRecentPlayerMatches(shard, pubgAccountID);
 
         // get the match data of each match id
         const allMatchesData = await pubgAPI.getMatchesData(shard, matchIDs);

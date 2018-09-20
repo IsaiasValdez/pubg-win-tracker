@@ -39,7 +39,7 @@ class PUBGApi {
     }
 
     // obtains match ids of player's recent games
-    async getPlayerMatchIDs(shard, playerID) {
+    async getRecentPlayerMatches(shard, playerID) {
         return await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/players/${playerID}`, {
             headers: {
                 'Authorization': `Bearer ${this.authkey}`,
@@ -58,28 +58,35 @@ class PUBGApi {
             // return array of match ids
             return matchesData.slice(0, matchSearchAmount).map(m => m.id);
         })
-        .catch(err => {
+        .catch((err) => {
             const statusCode = err.status;
+            let statusMessage = null;
             switch (statusCode) {
                 case 404:
                     // account not found
-                    throw statusCode;
+                    statusMessage = 'PUBG account not found! Make sure your account name is case-accurate or try a different region!';
+                    break;
                 case 429:
                     // request limit reached
+                    statusMessage = 'Too many requests! Please wait a minute and try again.';
                     console.log('Too many requests, raise the limit asap!');
-                    throw statusCode;
+                    break;
                 case 401:
                     // api authorization failure, uh oh
+                    statusMessage = 'API authorization failure! Please contact the developer!';
                     console.log('API authorization failure! Hope I didn\'t get banned!');
-                    throw statusCode;
+                    break;
                 case 415:
                     // content type error, no clue what that means really
+                    statusMessage = 'Content type error! Please contact the developer!';
                     console.log('Content type error!');
-                    throw statusCode;
+                    break;
                 default:
+                    statusMessage = 'Unknown error! Please contact the developer!';
                     console.log(err);
-                    throw -1;
             }
+
+            throw statusMessage;
         });
     }
 
