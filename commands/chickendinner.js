@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const shortid = require('shortid');
 const cloudinary = require('cloudinary');
-const { serverNameDelimiter, matchSearchAmount } = require('../config.json');
+const { serverNameDelimiter, maxMatchSearchAmount } = require('../config.json');
 const Icons = require('../canvas/icons');
 const { AccountConnections, MatchStats, UserMatches } = require('../dbObjects');
 const PUBGAPI = require('../pubgapi');
@@ -45,7 +45,7 @@ module.exports = {
         const isTracker = message.member.roles.has(settings.tracker_id);
         if (!isOwner && !isAdmin && !isTracker) { return message.reply(`you must have the <@&${settings.tracker_id}> role to use this command!`); }
 
-        // init pubg api (or the part I'm using lol)
+        // init pubg api
         const pubgAPI = new PUBGAPI(PUBGAPI_TOKEN);
 
         // parse shard
@@ -59,12 +59,16 @@ module.exports = {
             where: { guild_id: messageGuildID, discord_id: messageUserID },
         })
         .then(user => { return user.pubg_id; })
-        .catch(() => { return false; });
+        .catch(() => { return null; });
 
-        if(!pubgAccountID) { return message.reply('you must have a connected PUBG account to do that!'); }
+        if(pubgAccountID == null) { return message.reply('you must have a connected PUBG account to do that!'); }
 
         // get author's recent pubg match ids
-        const matchIDs = await pubgAPI.getPlayerMatchIDs(shard, pubgAccountID);
+        const matchIDs = await pubgAPI.getPlayerMatchIDs(shard, pubgAccountID)
+        .catch(statusCode => {
+
+        });
+        
         if (matchIDs === 404) {
             return message.reply('PUBG account not found! Make sure name casing is accurate or try a different region!');
         }
@@ -95,7 +99,7 @@ module.exports = {
 
         // get the stats of players of a chicken dinner game
         const winMatchesPlayerStats = await pubgAPI.getStatsFromDinners(allMatchesData, pubgAccountID, messageGuildID);
-        if (winMatchesPlayerStats.length < 1) { return message.reply(`no wins in last ${matchSearchAmount} games!`); }
+        if (winMatchesPlayerStats.length < 1) { return message.reply(`no wins in last ${maxMatchSearchAmount} games!`); }
 
         // container to hold valid match ids
         const validChoices = [];
@@ -131,6 +135,9 @@ module.exports = {
 
             message.channel.send(embed);
         }
+
+        // TODO: add pubg id to discord id connection
+        return;
 
         // console.log(validChoices);
 
