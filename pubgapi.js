@@ -59,7 +59,6 @@ class PUBGApi {
             return matchesData.slice(0, matchSearchAmount).map(m => m.id);
         })
         .catch(err => {
-            // console.log('problem!');
             const statusCode = err.status;
             switch (statusCode) {
                 case 404:

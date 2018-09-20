@@ -64,56 +64,29 @@ module.exports = {
         if(pubgAccountID == null) { return message.reply('you must have a connected PUBG account to do that!'); }
 
         // get author's recent pubg match ids
-        const matchIDs = await pubgAPI.getPlayerMatchIDs(shard, pubgAccountID)
-        .catch(statusCode => {
-
-        });
-        
-        if (matchIDs === 404) {
-            return message.reply('PUBG account not found! Make sure name casing is accurate or try a different region!');
-        }
-        else if (matchIDs === 429) {
-            return message.reply('too many requests! Please wait a minute and try again!');
-        }
-        else if (matchIDs === 401) {
-            return message.reply('API authorization failure! Please contact the developer!');
-        }
-        else if (matchIDs === 415) {
-            return message.reply('content type error! Please contact the developer!');
-        }
+        const matchIDs = await pubgAPI.getPlayerMatchIDs(shard, pubgAccountID);
 
         // get the match data of each match id
         const allMatchesData = await pubgAPI.getMatchesData(shard, matchIDs);
-        if (allMatchesData === 404) {
-            return message.reply('PUBG account not found! Make sure name casing is accurate or try a different region!');
-        }
-        else if (allMatchesData === 429) {
-            return message.reply('too many requests! Please wait a minute and try again!');
-        }
-        else if (allMatchesData === 401) {
-            return message.reply('API authorization failure! Please contact the developer!');
-        }
-        else if (allMatchesData === 415) {
-            return message.reply('content type error! Please contact the developer!');
-        }
 
         // get the stats of players of a chicken dinner game
-        const winMatchesPlayerStats = await pubgAPI.getStatsFromDinners(allMatchesData, pubgAccountID, messageGuildID);
-        if (winMatchesPlayerStats.length < 1) { return message.reply(`no wins in last ${maxMatchSearchAmount} games!`); }
+        const dinnersData = await pubgAPI.getStatsFromWins(allMatchesData, pubgAccountID);
+        if (dinnersData.length < 1) { return message.reply(`no wins in last ${maxMatchSearchAmount} games!`); }
 
         // container to hold valid match ids
         const validChoices = [];
+
         // filter to only following messages by author
         const filter = (response) => {
             return message.author.id === response.author.id;
         };
 
         // iterate through each win's player's stats to output for registering
-        for (let i = 0; i < winMatchesPlayerStats.length; i++) {
-            // cache match stats since wins (changes) are rare
+        for (let i = 0, totalMatches = dinnersData.length; i < totalMatches; i++) {
             // get the data related to current match, if true embed match image
-            const recordedMatchData = await MatchStats.findOne({ where: { match_id: winMatchesPlayerStats[i][0].matchID } })
+            const recordedMatchData = await MatchStats.findOne({ where: { match_id: dinnersData[i].matchID } })
                 .catch(console.error);
+            
             // build embed from player stats
             const embed = new Discord.RichEmbed();
             embed.setTitle(`Match ID: ${i + 1}`);
@@ -125,12 +98,16 @@ module.exports = {
                 embed.setThumbnail(recordedMatchData.image_url);
             }
             // get the current match's roster stats
-            const rosterStats = winMatchesPlayerStats[i];
+            const dinnerPlayers = dinnersData[i].players;
             // add field of stats for each player
-            for (let j = 0; j < rosterStats.length; j++) {
-                const currentPlayer = rosterStats[j];
-                const playerName = currentPlayer.playerName;
-                embed.addField(`${playerName}`, `Kills: ${currentPlayer.kills}\nAssists: ${currentPlayer.assists}\nRevives: ${currentPlayer.revives}\nDamage Dealt: ${currentPlayer.damageDealt}`);
+            for (let j = 0; j < dinnerPlayers.length; j++) {
+                const currentPlayer = dinnerPlayers[j];
+                embed.addField(
+                    `${currentPlayer.playerName}`,
+                    `Kills: ${currentPlayer.kills}\n
+                    Assists: ${currentPlayer.assists}\n
+                    Revives: ${currentPlayer.revives}\n
+                    Damage Dealt: ${currentPlayer.damageDealt}`);
             }
 
             message.channel.send(embed);
