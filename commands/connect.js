@@ -1,14 +1,14 @@
 const snekfetch = require('snekfetch');
 const PUBGAPI_TOKEN = process.env.PUBGAPI_TOKEN;
-const { AccountConnections } = require('../dbObjects');
+const { User } = require('../dbObjects');
 
 module.exports = {
     name: 'connect',
-    aliases: ['con'],
+    aliases: ['link'],
     description: 'Connect your Discord account to a PUBG account. `Manage_Server` members can change this.',
     guildOnly: false,
     args: true,
-    usage: '<na/eu> <AccountName> <@user>',
+    usage: '<na/eu> <AccountName>',
     cooldown: 3,
     async execute(message, args) {
         if (args.length < 2) { return message.reply('missing parameters!'); }
@@ -18,22 +18,17 @@ module.exports = {
         else if (shard === 'eu') { shard = 'pc-eu'; }
         else { return message.reply('region not supported or specified!'); }
 
-        const playerName = args[1];
+        // store pubg name
+        const pubgName = args[1];
 
-        // get guild id of message
-        const messageGuildID = message.guild.id;
-        // get user id of mention or message author
-        const messageUserID = (message.mentions.users.size > 0) ? message.mentions.users.first().id : message.author.id;
+        // store discord id of message author
+        const messageUserID = message.author.id;
 
-        // check if author has manage server permission to connect someone elses command
-        const isManager = (message.author.id === message.guild.ownerID) ? true : message.member.permissions.has('MANAGE_GUILD', true);
-        if (!isManager && (message.mentions.users.size > 0)) { return message.reply('you must have the `Manage Server` to set someone elses account!'); }
+        // get author's user data, if any
+        const user = await User.findOne({ where: { discord_id: messageUserID } });
 
-        // check if author has manage server permission to change a connection
-        const connection = await AccountConnections.findOne({ where: { guild_id: messageGuildID, discord_id: messageUserID } });
-        if (!isManager && connection) { return message.reply('Discord account already connected to a PUBG account! Contact an admin to have it changed!'); }
-
-        await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/players?filter[playerNames]=${playerName}`, {
+        // TODO: fill out comment
+        await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/players?filter[playerNames]=${pubgName}`, {
             headers: {
                 'Authorization': `Bearer ${PUBGAPI_TOKEN}`,
                 'Accept': 'application/json',
@@ -43,17 +38,17 @@ module.exports = {
             const pubgID = r.body.data[0].id;
 
             try {
-                if (!connection) {
-                    const newConnection = await AccountConnections.create({ guild_id: messageGuildID, discord_id: messageUserID, pubg_id: pubgID });
-                    return message.reply(`<@${newConnection.discord_id}> connected to ${playerName}`);
+                if (user == null) {
+                    const newUser = await User.create({ discord_id: messageUserID, pubg_id: pubgID });
+                    return message.reply(`<@${newUser.discord_id}> connected to ${pubgName}`);
                 }
                 else {
-                    connection.pubg_id = pubgID;
-                    connection.save()
+                    user.pubg_id = pubgID;
+                    user.save()
                     .then(() => {
-                        return message.reply(`<@${connection.discord_id}> connected to ${playerName}`);
+                        return message.reply(`<@${user.discord_id}> connected to ${pubgName}`);
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         console.error(err);
                         return message.reply('there was a problem updating the connection!');
                     });
@@ -84,18 +79,5 @@ module.exports = {
                 return message.reply('content type error! Please contact the developer!');
             }
         });
-
-        /*
-        const embed = new Discord.RichEmbed()
-            .setColor('#efff00')
-            .setTitle(answer.word)
-            .setURL(answer.permalink)
-            .addField('Definition', trim(answer.definition, 1024))
-            .addField('Example', trim(answer.example, 1024))
-            .addField('Rating', `${answer.thumbs_up} thumbs up.\n${answer.thumbs_down} thumbs down.`)
-            .setFooter(`Tags: ${body.tags.join(', ')}`);
-
-        message.channel.send(embed);
-        */
     },
 };

@@ -6,12 +6,13 @@ const iconStyles = new Discord.Collection();
 
 const styleFiles = fs.readdirSync('./canvas/icon_styles').filter(file => file.endsWith('.js'));
 
-// Load command files
+// load icon styles
 for (const file of styleFiles) {
     const style = require(`./icon_styles/${file}`);
     iconStyles.set(style.name, style);
 }
 
+// load custom fonts
 Canvas.registerFont('./canvas/icon_styles/ARMY RUST.ttf', { family: 'ARMY RUST' });
 Canvas.registerFont('./canvas/icon_styles/yukari.ttf', { family: 'yukari' });
 

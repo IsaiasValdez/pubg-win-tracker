@@ -3,7 +3,9 @@ const shortid = require('shortid');
 const cloudinary = require('cloudinary');
 const { serverNameDelimiter, maxMatchSearchAmount } = require('../config.json');
 const Icons = require('../canvas/icons');
-const { AccountConnections, ChickenDinners, UserMatches } = require('../dbObjects');
+const { ChickenDinner, User } = require('../dbObjects');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 const PUBGAPI = require('../pubgapi');
 const PUBGAPI_TOKEN = process.env.PUBGAPI_TOKEN;
 
@@ -55,8 +57,8 @@ module.exports = {
         else { return message.reply('region not supported or specified!'); }
 
         // get the pubg player id associated to the message user
-        const pubgAccountID = await AccountConnections.findOne({ 
-            where: { guild_id: messageGuildID, discord_id: messageUserID },
+        const pubgAccountID = await User.findOne({ 
+            where: { discord_id: messageUserID },
         })
         .then(user => { return user.pubg_id; })
         .catch(() => { return null; });
@@ -87,7 +89,7 @@ module.exports = {
         // iterate through each win's player's stats to output for registering
         for (let i = 0, totalMatches = dinnersData.length; i < totalMatches; i++) {
             // get the data related to current match, if true embed match image
-            const recordedMatchData = await ChickenDinners.findOne({ where: { match_id: dinnersData[i].matchID } })
+            const recordedMatchData = await ChickenDinner.findOne({ where: { match_id: dinnersData[i].matchID } })
                 .catch(console.error);
             
             // build embed from player stats
@@ -142,9 +144,7 @@ module.exports = {
         if (matchID < 0) { return; }
 
         // store stats of selected match to register
-        const chosenMatchStats = dinnersData[matchID];
-        // store match id (real one, should rename) of selected match
-        const chosenMatchID = chosenMatchStats.matchID;
+        const chosenMatch = dinnersData[matchID];
 
         // create new icon canvas if settings permit, else null
         const newIcon = (settings.update_icon) ? await Icons.getIcon(settings.icon_style, settings.wins + 1).catch(console.error) : null;
@@ -165,26 +165,28 @@ module.exports = {
         const imageURL = cloudinary.url(`pubg_win_tracker/${encodeURI(`${message.guild.id}-${uniqueID}`)}`, { resource_type: 'image' });
 
         // add match and its player's stats to database
-        ChickenDinners.create({ 
-            match_id: chosenMatchID,
+        const dinner = await ChickenDinner.create({ 
+            match_id: chosenMatch.matchID,
             image_url: `${imageURL}`,
-            player_1: JSON.stringify(chosenMatchStats.players[0], null, 2),
-            player_2: (chosenMatchStats.players > 1) ? JSON.stringify(chosenMatchStats.players[1], null, 2) : null, 
-            player_3: (chosenMatchStats.players > 2) ? JSON.stringify(chosenMatchStats.players[2], null, 2) : null,
-            player_4: (chosenMatchStats.players > 3) ? JSON.stringify(chosenMatchStats.players[3], null, 2) : null,
+            player_1: JSON.stringify(chosenMatch.players[0], null, 2),
+            player_2: (chosenMatch.players.length > 1) ? JSON.stringify(chosenMatch.players[1], null, 2) : null, 
+            player_3: (chosenMatch.players.length > 2) ? JSON.stringify(chosenMatch.players[2], null, 2) : null,
+            player_4: (chosenMatch.players.length > 3) ? JSON.stringify(chosenMatch.players[3], null, 2) : null,
         })
         .catch(console.error);
 
-        // connect match to connected discord ids
-        chosenMatchStats.players.map(playerStats => {
-            if (playerStats.discordID) {
-                UserMatches.create({
-                    discord_id: playerStats.discordID,
-                    match_id: chosenMatchID,
-                })
-                .catch(console.error);
-            }
-        });
+        const playerIDs = chosenMatch.players.map((player) => player.pubgID);
+
+        const connectedUsers = await User.findAll({
+            where: {
+                pubg_id: {
+                    [Op.or]: playerIDs,
+                },
+            },
+        })
+        .catch(console.error);
+
+        dinner.addUsers(connectedUsers);
 
         // increase guild's wins
         settings.wins += 1;

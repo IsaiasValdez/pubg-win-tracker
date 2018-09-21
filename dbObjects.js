@@ -10,6 +10,9 @@ if (!useSqlite) {
         dialect: 'postgres',
         logging: false,
         operatorsAliases: false,
+        define: {
+            freezeTableName: true,
+        },
         dialectOptions: {
             ssl: true,
         },
@@ -27,14 +30,20 @@ else {
         dialect: 'sqlite',
         logging: true,
         operatorsAliases: false,
+        define: {
+            freezeTableName: true,
+        },
         // sqlite only
         storage: 'db.sqlite',
     });
 }
 
 const GuildSettings = sequelize.import('models/GuildSettings');
-const AccountConnections = sequelize.import('models/AccountConnections');
-const ChickenDinners = sequelize.import('models/ChickenDinners');
-const UserMatches = sequelize.import('models/UserMatches');
+const User = sequelize.import('models/User');
+const ChickenDinner = sequelize.import('models/ChickenDinner');
 
-module.exports = { GuildSettings, AccountConnections, ChickenDinners, UserMatches };
+// set association between User table and ChickenDinner table
+User.belongsToMany(ChickenDinner, { through: 'UserDinners', foreignKey: 'user_id' });
+ChickenDinner.belongsToMany(User, { through: 'UserDinners', foreignKey: 'dinner_id' });
+
+module.exports = { GuildSettings, User, ChickenDinner };

@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    return sequelize.define('chickendinners', {
+    return sequelize.define('ChickenDinner', {
         match_id: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -25,10 +25,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.JSON,
             allowNull: true,
         },
-        match_date: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        }
     }, {
         timestamps: false,
     });

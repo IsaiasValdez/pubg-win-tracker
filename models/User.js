@@ -1,9 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    return sequelize.define('accountconnections', {
-        guild_id: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
+    return sequelize.define('User', {
         discord_id: {
             type: DataTypes.STRING,
             allowNull: false,
