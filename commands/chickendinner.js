@@ -116,11 +116,6 @@ module.exports = {
             message.channel.send(embed);
         }
 
-        // TODO: add pubg id to discord id connection
-        // return;
-
-        // console.log(validChoices);
-
         // place holder for selected match id to register
         let matchID = -1;
 

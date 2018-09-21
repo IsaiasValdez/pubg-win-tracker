@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.JSON,
             allowNull: true,
         },
+        match_date: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        }
     }, {
         timestamps: false,
     });

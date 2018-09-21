@@ -5,9 +5,10 @@ const { maxMatchSearchAmount } = require('./config.json');
 
 class ChickenDinner {
 
-    constructor(matchID, gamemode) {
+    constructor(matchID, gamemode, matchdate) {
         this.matchID = matchID;
         this.gamemode = gamemode;
+        this.matchdate = matchdate;
         this.players = new Array();
     }
 
@@ -160,9 +161,11 @@ class PUBGApi {
             const currentMatchID = currentMatchData.body.data.id;
             // store current match gamemode for future use
             const currentMatchMode = currentMatchData.body.data.attributes.gameMod;
+            // store current match date
+            const currentMatchDate = currentMatchData.body.data.attributes.createdAt;
 
             // create a dinner to store match and player(s) info
-            const dinner = new ChickenDinner(currentMatchID, currentMatchMode);
+            const dinner = new ChickenDinner(currentMatchID, currentMatchMode, currentMatchDate);
 
             // find and store participant ids of winning team
             const winningParticipantIDs = currentMatchData.body.included
