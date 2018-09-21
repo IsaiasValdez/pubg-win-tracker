@@ -31,8 +31,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         tracker_id: {
             type: DataTypes.STRING,
-            defaultValue: 'missing',
-            allowNull: false,
+            defaultValue: null,
+            allowNull: true,
         },
     }, {
         timestamps: false,
