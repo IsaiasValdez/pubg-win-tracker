@@ -64,7 +64,10 @@ module.exports = {
         if(pubgAccountID == null) { return message.reply('you must have a connected PUBG account to do that!'); }
 
         // get author's recent pubg match ids
-        const matchIDs = await pubgAPI.getRecentPlayerMatches(shard, pubgAccountID);
+        const matchIDs = await pubgAPI.getRecentPlayerMatches(shard, pubgAccountID)
+        .catch((errmsg) => {
+            return message.reply(errmsg);
+        });
 
         // get the match data of each match id
         const allMatchesData = await pubgAPI.getMatchesData(shard, matchIDs);
@@ -91,7 +94,7 @@ module.exports = {
             const embed = new Discord.RichEmbed();
             embed.setTitle(`Match ID: ${i + 1}`);
             embed.setAuthor(`${message.guild.name}`, message.guild.iconURL);
-            embed.setColor('#ff0000');
+            embed.setColor('#ffd147');
             // if match recorded embed match image, else add index as valid choice (index+1 for displaying)
             if (recordedMatchData == null) { validChoices.push(`${i + 1}`); }
             else if (settings.update_icon && recordedMatchData.image_url !== 'none') {
@@ -104,9 +107,9 @@ module.exports = {
                 const currentPlayer = dinnerPlayers[j];
                 embed.addField(
                     `${currentPlayer.playerName}`,
-                    `Kills: ${currentPlayer.kills}\n
-                    Assists: ${currentPlayer.assists}\n
-                    Revives: ${currentPlayer.revives}\n
+                    `Kills: ${currentPlayer.kills}
+                    Assists: ${currentPlayer.assists}
+                    Revives: ${currentPlayer.revives}
                     Damage Dealt: ${currentPlayer.damageDealt}`);
             }
 
@@ -114,7 +117,7 @@ module.exports = {
         }
 
         // TODO: add pubg id to discord id connection
-        return;
+        // return;
 
         // console.log(validChoices);
 
@@ -144,9 +147,9 @@ module.exports = {
         if (matchID < 0) { return; }
 
         // store stats of selected match to register
-        const chosenMatchStats = winMatchesPlayerStats[matchID];
+        const chosenMatchStats = dinnersData[matchID];
         // store match id (real one, should rename) of selected match
-        const chosenMatchID = chosenMatchStats[0].matchID;
+        const chosenMatchID = chosenMatchStats.matchID;
 
         // create new icon canvas if settings permit, else null
         const newIcon = (settings.update_icon) ? await Icons.getIcon(settings.icon_style, settings.wins + 1).catch(console.error) : null;
@@ -170,15 +173,15 @@ module.exports = {
         MatchStats.create({ 
             match_id: chosenMatchID,
             image_url: `${imageURL}`,
-            player_1: JSON.stringify(chosenMatchStats[0], null, 2),
-            player_2: (chosenMatchStats.length > 1) ? JSON.stringify(chosenMatchStats[1], null, 2) : null, 
-            player_3: (chosenMatchStats.length > 2) ? JSON.stringify(chosenMatchStats[2], null, 2) : null,
-            player_4: (chosenMatchStats.length > 3) ? JSON.stringify(chosenMatchStats[3], null, 2) : null,
+            player_1: JSON.stringify(chosenMatchStats.players[0], null, 2),
+            player_2: (chosenMatchStats.players > 1) ? JSON.stringify(chosenMatchStats.players[1], null, 2) : null, 
+            player_3: (chosenMatchStats.players > 2) ? JSON.stringify(chosenMatchStats.players[2], null, 2) : null,
+            player_4: (chosenMatchStats.players > 3) ? JSON.stringify(chosenMatchStats.players[3], null, 2) : null,
         })
         .catch(console.error);
 
         // connect match to connected discord ids
-        chosenMatchStats.map(playerStats => {
+        chosenMatchStats.players.map(playerStats => {
             if (playerStats.discordID) {
                 UserMatches.create({
                     discord_id: playerStats.discordID,

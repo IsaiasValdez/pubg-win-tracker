@@ -69,21 +69,21 @@ class PUBGApi {
                 case 429:
                     // request limit reached
                     statusMessage = 'Too many requests! Please wait a minute and try again.';
-                    console.log('Too many requests, raise the limit asap!');
+                    console.error('Too many requests, raise the limit asap!');
                     break;
                 case 401:
                     // api authorization failure, uh oh
                     statusMessage = 'API authorization failure! Please contact the developer!';
-                    console.log('API authorization failure! Hope I didn\'t get banned!');
+                    console.error('API authorization failure! Hope I didn\'t get banned!');
                     break;
                 case 415:
                     // content type error, no clue what that means really
                     statusMessage = 'Content type error! Please contact the developer!';
-                    console.log('Content type error!');
+                    console.error('Content type error!');
                     break;
                 default:
                     statusMessage = 'Unknown error! Please contact the developer!';
-                    console.log(err);
+                    console.error(err);
             }
 
             throw statusMessage;
@@ -91,6 +91,7 @@ class PUBGApi {
     }
 
     // get match data on an array of match ids
+    // TODO: Add error handling???
     async getMatchesData(shard, matchIDs) {
         return Promise.all(matchIDs.map(id => {
             return this.requestMatchData(shard, id);
@@ -106,19 +107,16 @@ class PUBGApi {
             const statusCode = err.status;
             switch (statusCode) {
                 case 404:
-                    console.log('PUBG account not found! Make sure name casing is accurate or try a different region!');
-                    break;
-                case 429:
-                    console.log('too many requests! Please wait a minute and try again!');
+                    console.error('Match not found!');
                     break;
                 case 401:
-                    console.log('API authorization failure! Please contact the developer!');
+                    console.error('API authorization failure!');
                     break;
                 case 415:
-                    console.log('content type error! Please contact the developer!');
+                    console.error('Content type error!');
                     break;
                 default:
-                    console.log(err);
+                    console.error(err);
             }
 
             return null;
