@@ -1,12 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
-    return sequelize.define('matchstats', {
+    return sequelize.define('chickendinners', {
         match_id: {
             type: DataTypes.STRING,
-            primaryKey: true,
+            allowNull: false,
         },
         image_url: {
             type: DataTypes.STRING,
-            defaultValue: 'none',
+            defaultValue: null,
             allowNull: true,
         },
         player_1: {

@@ -1,11 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('usermatches', {
-        discord_id: {
-            type: DataTypes.STRING,
+        account_id: {
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
-        match_id: {
-            type: DataTypes.STRING,
+        dinner_id: {
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
     }, {

@@ -3,7 +3,7 @@ const shortid = require('shortid');
 const cloudinary = require('cloudinary');
 const { serverNameDelimiter, maxMatchSearchAmount } = require('../config.json');
 const Icons = require('../canvas/icons');
-const { AccountConnections, MatchStats, UserMatches } = require('../dbObjects');
+const { AccountConnections, ChickenDinners, UserMatches } = require('../dbObjects');
 const PUBGAPI = require('../pubgapi');
 const PUBGAPI_TOKEN = process.env.PUBGAPI_TOKEN;
 
@@ -87,7 +87,7 @@ module.exports = {
         // iterate through each win's player's stats to output for registering
         for (let i = 0, totalMatches = dinnersData.length; i < totalMatches; i++) {
             // get the data related to current match, if true embed match image
-            const recordedMatchData = await MatchStats.findOne({ where: { match_id: dinnersData[i].matchID } })
+            const recordedMatchData = await ChickenDinners.findOne({ where: { match_id: dinnersData[i].matchID } })
                 .catch(console.error);
             
             // build embed from player stats
@@ -170,7 +170,7 @@ module.exports = {
         const imageURL = cloudinary.url(`pubg_win_tracker/${encodeURI(`${message.guild.id}-${uniqueID}`)}`, { resource_type: 'image' });
 
         // add match and its player's stats to database
-        MatchStats.create({ 
+        ChickenDinners.create({ 
             match_id: chosenMatchID,
             image_url: `${imageURL}`,
             player_1: JSON.stringify(chosenMatchStats.players[0], null, 2),

@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         tracker_id: {
             type: DataTypes.STRING,
-            defaultValue: 'none',
+            defaultValue: 'missing',
             allowNull: false,
         },
     }, {

@@ -34,7 +34,7 @@ else {
 
 const GuildSettings = sequelize.import('models/GuildSettings');
 const AccountConnections = sequelize.import('models/AccountConnections');
-const MatchStats = sequelize.import('models/MatchStats');
+const ChickenDinners = sequelize.import('models/ChickenDinners');
 const UserMatches = sequelize.import('models/UserMatches');
 
-module.exports = { GuildSettings, AccountConnections, MatchStats, UserMatches };
+module.exports = { GuildSettings, AccountConnections, ChickenDinners, UserMatches };
