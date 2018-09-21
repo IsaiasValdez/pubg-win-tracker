@@ -1,14 +1,7 @@
 'use strict';
 
 const snekfetch = require('snekfetch');
-const { AccountConnections } = require('./dbObjects');
 const { maxMatchSearchAmount } = require('./config.json');
-const bannedGamemodes = ['warmode', 'warmode-fpp'];
-
-const isSolo = (mode) => {
-    if (mode === 'solo' || mode === 'solo-fpp') { return true; }
-    else { return false; }
-};
 
 class ChickenDinner {
 
