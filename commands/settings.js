@@ -117,7 +117,7 @@ module.exports = {
             // get chosen style name
             const styleName = args[1].toLowerCase();
             // validate that icon style exists
-            const iconStyle = Icons.getIconStyles().get(styleName);
+            const iconStyle = Icons.getIconStyles(true).get(styleName);
             if (!iconStyle) { return message.reply(`could not find icon style: \`${styleName}\`! Use command \`iconstyles\` to view available styles!`); }
             
             // set guild's icon style to chosen style name

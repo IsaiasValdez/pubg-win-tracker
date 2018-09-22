@@ -13,10 +13,11 @@ for (const file of styleFiles) {
 }
 
 // load custom fonts
-Canvas.registerFont('./canvas/icon_styles/ARMY RUST.ttf', { family: 'ARMY RUST' });
+Canvas.registerFont('./canvas/icon_styles/armalite_rifle.ttf', { family: 'armalite rifle' });
 Canvas.registerFont('./canvas/icon_styles/yukari.ttf', { family: 'yukari' });
 
 module.exports = {
+    // create icon
     async getIcon(styleName, wins) {
         const style = iconStyles.get(styleName);
         if (!style) {
@@ -27,7 +28,9 @@ module.exports = {
         return await style.createIconCanvas(wins);
     },
 
-    getIconStyles() {
-        return iconStyles;
+    // request all icon styles
+    getIconStyles(showHidden) {
+        // display only styles that are not hidden
+        return iconStyles.filter(style => !style.hidden || showHidden);
     },
 };
