@@ -20,7 +20,7 @@ module.exports = {
     async getIcon(styleName, wins) {
         const style = iconStyles.get(styleName);
         if (!style) {
-            console.log(`Style named: ${styleName} not found!`);
+            console.log(`Style: ${styleName} not found!`);
             return await iconStyles.get('default').createIconCanvas(wins); 
         }
 

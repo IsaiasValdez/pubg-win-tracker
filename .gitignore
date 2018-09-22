@@ -77,3 +77,10 @@ typings/
 
 # dbInit
 dbInit.js
+
+# personal icon styles
+canvas/icon_styles/odynasty_bg.jpg
+canvas/icon_styles/odynasty.js
+canvas/icon_styles/tas.js
+canvas/icon_styles/tas_bg.jpg
+canvas/icon_styles/yukari.ttf

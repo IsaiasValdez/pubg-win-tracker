@@ -43,7 +43,7 @@ module.exports = {
         // user exists in db
         if (user) {
             // update user pubg id
-            user.pubg_id = playerPubgID;
+            user.pubg_id = playerPubgID; 
             user.save()
             .then(() => {
                 return message.reply(`<@${user.discord_id}> connected to ${pubgName}`);
