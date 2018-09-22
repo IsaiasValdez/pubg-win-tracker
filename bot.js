@@ -5,7 +5,7 @@ const memjs = require('memjs');
 const { prefix } = require('./config.json');
 const { GuildSettings } = require('./dbObjects');
 
-// tokens
+// discord api token
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 
 // setup client
@@ -37,6 +37,7 @@ client.guildsettings = new Discord.Collection();
 
 // start bot
 client.once('ready', async () => {
+    // load all guild settings db models
     const storedSettings = await GuildSettings.findAll();
     storedSettings.forEach(gs => client.guildsettings.set(gs.guild_id, gs));
 
@@ -50,7 +51,7 @@ client.once('ready', async () => {
 
 // read messages
 client.on('message', async message => {
-    // exit early if message not a command and start bot
+    // exit early if message not a command or message author is bot
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     // get arg array with single-spacing
@@ -65,10 +66,12 @@ client.on('message', async message => {
     // exit early if command doesn't exist
     if (!command) return;
 
+    // check if user asks for a command that can only be used in a guild
     if (command.guildOnly && message.channel.type !== 'text') {
         return message.reply('I can\'t execute that command inside DMs!');
     }
 
+    // exit early if command is guild only and guild is down
     if (command.guildOnly && !message.guild.available) { return console.error(`Server: ${message.guild.id} - Unavailable!`); }
 
     // alert user if command used incorrectly
@@ -165,7 +168,7 @@ client.on('guildDelete', async guild => {
     if (!guild.available) { return console.error(`Server: ${guild.id} - Unavailable!`); }
 
     const settings = client.guildsettings.get(guild.id);
-    if(settings && guild.available) {
+    if(settings) {
         const rowCount = await GuildSettings.destroy({ guild_id: guild.id });
         if (rowCount) {
             console.log(`Server ${guild.id} - Deleted settings in database!`);

@@ -31,6 +31,49 @@ class PUBGApi {
         this.authkey = authkey;
     }
 
+    async getPubgPlayerID(shard, pubgName) {
+        return await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/players?filter[playerNames]=${pubgName}`, {
+            headers: {
+                'Authorization': `Bearer ${this.authkey}`,
+                'Accept': 'application/json',
+            },
+        })
+        .then(async data => {
+            const pubgID = data.body.data[0].id;
+            return pubgID;
+        })
+        .catch((err) => {
+            const statusCode = err.status;
+            let statusMessage = null;
+            switch (statusCode) {
+                case 404:
+                    // account not found
+                    statusMessage = 'PUBG account not found! Make sure your account name is case-accurate or try a different region!';
+                    break;
+                case 429:
+                    // request limit reached
+                    statusMessage = 'Too many requests! Please wait a minute and try again.';
+                    console.error('Too many requests, raise the limit asap!');
+                    break;
+                case 401:
+                    // api authorization failure, uh oh
+                    statusMessage = 'API authorization failure! Please contact the developer!';
+                    console.error('API authorization failure! Hope I didn\'t get banned!');
+                    break;
+                case 415:
+                    // content type error, no clue what that means really
+                    statusMessage = 'Content type error! Please contact the developer!';
+                    console.error('Content type error!');
+                    break;
+                default:
+                    statusMessage = 'Unknown error! Please contact the developer!';
+                    console.error(err);
+            }
+
+            throw statusMessage;
+        });
+    }
+
     // obtains match ids of player's recent games
     async getRecentPlayerMatches(shard, playerID) {
         return await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/players/${playerID}`, {
