@@ -24,16 +24,25 @@ module.exports = {
         // store pubg name
         const pubgName = args[1];
 
+        // get pubg account id from pubg name
+        const playerPubgID = await pubgAPI.getPubgPlayerID(shard, pubgName)
+        .catch((errmsg) => {
+            message.reply(errmsg);
+            return null;
+        });
+
+        // cancel command if failed to retrieve pubg id
+        if (playerPubgID === null) { return; }
+
         // store discord id of message author
         const messageUserID = message.author.id;
 
         // get author's user data, if any
-        const user = await User.findOne({ where: { discord_id: messageUserID } });
+        const user = await User.findOne({ where: { discord_id: messageUserID } }).catch(console.error);
 
-        const playerPubgID = await pubgAPI.getPubgPlayerID(shard, pubgName)
-        .catch((errmsg) => { return message.reply(errmsg); });
-
+        // user exists in db
         if (user) {
+            // update user pubg id
             user.pubg_id = playerPubgID;
             user.save()
             .then(() => {
@@ -44,9 +53,15 @@ module.exports = {
                 return message.reply('there was a problem updating the connection!');
             });
         }
+        // user doesn't exists in db
         else {
-            const newUser = await User.create({ discord_id: messageUserID, pubg_id: playerPubgID });
-            return message.reply(`<@${newUser.discord_id}> connected to ${pubgName}`);
+            // create new user entry
+            User.create({ discord_id: messageUserID, pubg_id: playerPubgID })
+            .then((newUser) => { return message.reply(`<@${newUser.discord_id}> connected to ${pubgName}`); })
+            .catch((err) => {
+                console.error(err);
+                return message.reply('there was a problem connecting your account!');
+            });
         }
     },
 };
