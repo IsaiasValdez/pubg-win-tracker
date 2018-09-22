@@ -41,7 +41,7 @@ module.exports = {
             // parse win integer
             const settingValue = parseInt([args[1]]);
             // validate integer is valid
-            if (settingValue < 0 || settingValue > Number.MAX_SAFE_INTEGER || Number.isNaN(settingValue)) { return message.reply('haha, very funny, cunt!'); }
+            if (settingValue < 0 || settingValue > Number.MAX_SAFE_INTEGER || Number.isNaN(settingValue)) { return message.reply('that\'s not a number I can understand, haha...'); }
 
             // set guild's wins to settingValue
             settings.wins = settingValue;
