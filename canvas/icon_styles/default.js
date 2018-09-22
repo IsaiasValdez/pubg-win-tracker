@@ -8,7 +8,7 @@ module.exports = {
     async createIconCanvas(wins) {
         const applyText = (canvas, text) => {
            const ctx = canvas.getContext('2d');
-           let fontSize = 256;
+           let fontSize = 200;
 
            do {
                ctx.font = `${fontSize -= 10}px "armalite rifle"`;
@@ -32,7 +32,7 @@ module.exports = {
 
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 6;
-        ctx.strokeText(wins, canvas.width / 2, canvas.height / 1.4);
+        ctx.strokeText(wins, canvas.width / 2, (canvas.height / 2) + (ctx.measureText('M').width / 2));
         
         // Create gradient
         const grd = ctx.createLinearGradient(150.000, 300.000, 150.000, 0.000);
@@ -41,11 +41,11 @@ module.exports = {
         grd.addColorStop(0.300, 'rgba(231, 127, 17, 1.000)');
         grd.addColorStop(0.460, 'rgba(254, 221, 30, 1.000)');
         grd.addColorStop(0.497, 'rgba(254, 221, 30, 1.000)');
-        grd.addColorStop(1.000, 'rgba(254, 191, 65, 1.000)');
+        grd.addColorStop(0.800, 'rgba(254, 191, 65, 1.000)');
         
         // Fill with gradient
         ctx.fillStyle = grd;
-        ctx.fillText(wins, canvas.width / 2, canvas.height / 1.4);
+        ctx.fillText(wins, canvas.width / 2, (canvas.height / 2) + (ctx.measureText('M').width / 2));
 
         return canvas;
     },
