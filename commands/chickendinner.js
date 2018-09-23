@@ -158,12 +158,7 @@ module.exports = {
                 folder: 'pubg_win_tracker',
             },
             function(error) { if(error) console.log(error); })
-            .end(newIcon.toBuffer({
-                mimeType: 'image/jpeg',
-                config: {
-                    quality: 0.8,
-                },
-            }));
+            .end(newIcon.toBuffer());
         }
 
         // build (expected) uploaded image url
