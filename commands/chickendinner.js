@@ -94,7 +94,7 @@ module.exports = {
                 match_id: {
                     [Op.or]: allDinnerIDs,
                 },
-            }
+            },
         }).catch(console.error);
 
         // iterate through each win's player's stats to output for registering
