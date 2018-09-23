@@ -148,26 +148,27 @@ module.exports = {
 
         // create new icon canvas if settings permit, else null
         const newIcon = (settings.update_icon) ? await Icons.getIcon(settings.icon_style, settings.wins + 1).catch(console.error) : null;
-        const uniqueID = shortid.generate();
+        let uniqueID = null;
+        let imageURL = null;
 
         // upload icon to cloud for embedding, if update icon true
-        if (newIcon !== null) {
+        if (newIcon) {
             cloudinary.v2.uploader.upload_stream({
                 resource_type: 'image',
                 public_id: `${message.guild.id}-${uniqueID}`,
                 folder: 'pubg_win_tracker',
-            },
-            function(error) { if(error) console.log(error); })
+                async: true,
+            }, (err) => { console.error(err); })
             .end(newIcon.toBuffer());
+
+            uniqueID = shortid.generate();
+            imageURL = cloudinary.url(`pubg_win_tracker/${encodeURI(`${message.guild.id}-${uniqueID}`)}`, { resource_type: 'image' });
         }
 
-        // build (expected) uploaded image url
-        const imageURL = cloudinary.url(`pubg_win_tracker/${encodeURI(`${message.guild.id}-${uniqueID}`)}`, { resource_type: 'image' });
-
-        // add match and its player's stats to database
+        // add dinner and its player's stats to database
         const dinner = await ChickenDinner.create({ 
             match_id: chosenMatch.matchID,
-            image_url: `${imageURL}`,
+            image_url: imageURL,
             player_1: JSON.stringify(chosenMatch.players[0], null, 2),
             player_2: (chosenMatch.players.length > 1) ? JSON.stringify(chosenMatch.players[1], null, 2) : null, 
             player_3: (chosenMatch.players.length > 2) ? JSON.stringify(chosenMatch.players[2], null, 2) : null,
@@ -175,17 +176,20 @@ module.exports = {
         })
         .catch(console.error);
 
-        const playerIDs = chosenMatch.players.map((player) => player.pubgID);
+        // get player pubg ids from dinner
+        const playerPubgIDs = chosenMatch.players.map((player) => player.pubgID);
 
+        // find all users in db by their pubg id
         const connectedUsers = await User.findAll({
             where: {
                 pubg_id: {
-                    [Op.or]: playerIDs,
+                    [Op.or]: playerPubgIDs,
                 },
             },
         })
         .catch(console.error);
 
+        // add dinner to users found
         dinner.addUsers(connectedUsers);
 
         // increase guild's wins
