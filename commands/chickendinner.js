@@ -86,21 +86,31 @@ module.exports = {
             return message.author.id === response.author.id;
         };
 
+        const allDinnerIDs = dinnersData.map((dinner) => dinner.matchID);
+
+        const registeredDinners = await ChickenDinner.findAll({
+            attributes: ['match_id', 'image_url'],
+            where: {
+                match_id: {
+                    [Op.or]: allDinnerIDs,
+                },
+            }
+        }).catch(console.error);
+
         // iterate through each win's player's stats to output for registering
         for (let i = 0, totalMatches = dinnersData.length; i < totalMatches; i++) {
-            // get the data related to current match, if true embed match image
-            const recordedMatchData = await ChickenDinner.findOne({ where: { match_id: dinnersData[i].matchID } })
-                .catch(console.error);
-            
             // build embed from player stats
             const embed = new Discord.RichEmbed();
             embed.setTitle(`Match ID: ${i + 1}`);
             embed.setAuthor(`${message.guild.name}`, message.guild.iconURL);
             embed.setColor('#ffd147');
             // if match recorded embed match image, else add index as valid choice (index+1 for displaying)
-            if (recordedMatchData == null) { validChoices.push(`${i + 1}`); }
-            else if (settings.update_icon && recordedMatchData.image_url !== 'none') {
-                embed.setThumbnail(recordedMatchData.image_url);
+            const existingDinnerData = registeredDinners.find((dinner) => dinner.match_id === dinnersData[i].matchID);
+            if (existingDinnerData) {
+                embed.setThumbnail(existingDinnerData.image_url);
+            }
+            else {
+                validChoices.push(`${i + 1}`);
             }
             // get the current match's roster stats
             const dinnerPlayers = dinnersData[i].players;
@@ -160,9 +170,9 @@ module.exports = {
                 public_id: `${message.guild.id}-${uniqueID}`,
                 folder: 'pubg_win_tracker',
                 async: true,
-            }, (err) => { console.error(err); })
+            }, (err) => { if (err) { console.error(err); } })
             .end(newIcon.toBuffer());
-            
+
             imageURL = cloudinary.url(`pubg_win_tracker/${encodeURI(`${message.guild.id}-${uniqueID}`)}`, { resource_type: 'image' });
         }
 
