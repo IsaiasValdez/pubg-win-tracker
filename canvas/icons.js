@@ -14,7 +14,7 @@ for (const file of styleFiles) {
 
 // load custom fonts
 Canvas.registerFont('./canvas/icon_styles/armalite_rifle.ttf', { family: 'armalite rifle' });
-Canvas.registerFont('./canvas/icon_styles/yukari.ttf', { family: 'yukari' });
+// Canvas.registerFont('./canvas/icon_styles/yukari.ttf', { family: 'yukari' });
 
 module.exports = {
     // create icon

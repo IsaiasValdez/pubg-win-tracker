@@ -27,7 +27,7 @@ module.exports = {
         // calculate horizontal center position
         const x_position = canvas.width / 2;
         // calculate vertical position using M as the baseline because that works for some reason????
-        const y_position = (canvas.height / 2) + (ctx.measureText('M').width / 2);
+        const y_position = (canvas.height + ctx.measureText('M').width) / 2;
         ctx.textAlign = 'center';
         ctx.shadowColor = 'black';
         ctx.shadowBlur = 32;
