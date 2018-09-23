@@ -153,6 +153,8 @@ module.exports = {
 
         // upload icon to cloud for embedding, if update icon true
         if (newIcon) {
+            uniqueID = shortid.generate();
+
             cloudinary.v2.uploader.upload_stream({
                 resource_type: 'image',
                 public_id: `${message.guild.id}-${uniqueID}`,
@@ -160,8 +162,7 @@ module.exports = {
                 async: true,
             }, (err) => { console.error(err); })
             .end(newIcon.toBuffer());
-
-            uniqueID = shortid.generate();
+            
             imageURL = cloudinary.url(`pubg_win_tracker/${encodeURI(`${message.guild.id}-${uniqueID}`)}`, { resource_type: 'image' });
         }
 
