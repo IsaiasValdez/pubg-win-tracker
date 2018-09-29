@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        pubg_name:  {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     }, {
         timestamps: false,
     });

@@ -89,8 +89,9 @@ module.exports = {
         const allDinnerIDs = dinnersData.map((dinner) => dinner.matchID);
 
         const registeredDinners = await ChickenDinner.findAll({
-            attributes: ['match_id', 'image_url'],
+            attributes: ['guild_id', 'match_id', 'image_url'],
             where: {
+                guild_id: messageGuildID,
                 match_id: {
                     [Op.or]: allDinnerIDs,
                 },
@@ -105,7 +106,7 @@ module.exports = {
             embed.setAuthor(`${message.guild.name}`, message.guild.iconURL);
             embed.setColor('#ffd147');
             // if match recorded embed match image, else add index as valid choice (index+1 for displaying)
-            const existingDinnerData = registeredDinners.find((dinner) => dinner.match_id === dinnersData[i].matchID);
+            const existingDinnerData = registeredDinners.find((dinner) => dinner.guild_id === messageGuildID && dinner.match_id === dinnersData[i].matchID);
             if (existingDinnerData) {
                 embed.setThumbnail(existingDinnerData.image_url);
             }
@@ -127,6 +128,8 @@ module.exports = {
 
             message.channel.send(embed);
         }
+
+        if (validChoices.length < 1) { return message.reply('no new matches to register!'); }
 
         // place holder for selected match id to register
         let matchID = -1;
@@ -167,7 +170,7 @@ module.exports = {
 
             cloudinary.v2.uploader.upload_stream({
                 resource_type: 'image',
-                public_id: `${message.guild.id}-${uniqueID}`,
+                public_id: `${messageGuildID}-${uniqueID}`,
                 folder: 'pubg_win_tracker',
                 async: true,
             }, (err) => { if (err) { console.error(err); } })
@@ -177,13 +180,12 @@ module.exports = {
         }
 
         // add dinner and its player's stats to database
-        const dinner = await ChickenDinner.create({ 
+        const dinner = await ChickenDinner.create({
+            guild_id: messageGuildID,
             match_id: chosenMatch.matchID,
             image_url: imageURL,
-            player_1: JSON.stringify(chosenMatch.players[0], null, 2),
-            player_2: (chosenMatch.players.length > 1) ? JSON.stringify(chosenMatch.players[1], null, 2) : null, 
-            player_3: (chosenMatch.players.length > 2) ? JSON.stringify(chosenMatch.players[2], null, 2) : null,
-            player_4: (chosenMatch.players.length > 3) ? JSON.stringify(chosenMatch.players[3], null, 2) : null,
+            total_kills: chosenMatch.totalKills,
+            players: JSON.stringify(chosenMatch.players, null, 0),
         })
         .catch(console.error);
 

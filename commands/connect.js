@@ -25,14 +25,14 @@ module.exports = {
         const pubgName = args[1];
 
         // get pubg account id from pubg name
-        const playerPubgID = await pubgAPI.getPubgPlayerID(shard, pubgName)
+        const playerInfo = await pubgAPI.getPubgPlayer(shard, pubgName)
         .catch((errmsg) => {
             message.reply(errmsg);
             return null;
         });
 
         // cancel command if failed to retrieve pubg id
-        if (playerPubgID === null) { return; }
+        if (playerInfo === null) { return; }
 
         // store discord id of message author
         const messageUserID = message.author.id;
@@ -43,7 +43,8 @@ module.exports = {
         // user exists in db
         if (user) {
             // update user pubg id
-            user.pubg_id = playerPubgID; 
+            user.pubg_id = playerInfo.id;
+            user.pubg_name = playerInfo.name;
             user.save()
             .then(() => {
                 return message.reply(`<@${user.discord_id}> connected to ${pubgName}`);
@@ -56,7 +57,7 @@ module.exports = {
         // user doesn't exists in db
         else {
             // create new user entry
-            User.create({ discord_id: messageUserID, pubg_id: playerPubgID })
+            User.create({ discord_id: messageUserID, pubg_id: playerInfo.id, pubg_name: playerInfo.name })
             .then((newUser) => { return message.reply(`<@${newUser.discord_id}> connected to ${pubgName}`); })
             .catch((err) => {
                 console.error(err);

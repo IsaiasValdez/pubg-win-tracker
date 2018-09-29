@@ -8,6 +8,7 @@ class ChickenDinner {
     constructor(matchID, gamemode) {
         this.matchID = matchID;
         this.gamemode = gamemode;
+        this.totalKills = 0;
         this.players = new Array();
     }
 
@@ -21,7 +22,13 @@ class ChickenDinner {
             damageDealt: parseInt(playerData.damageDealt),
         };
 
+        this.addKills(player.kills);
+
         this.players.push(player);
+    }
+
+    addKills(kills) {
+        this.totalKills += parseInt(kills);
     }
 }
 
@@ -31,7 +38,7 @@ class PUBGApi {
         this.authkey = authkey;
     }
 
-    async getPubgPlayerID(shard, pubgName) {
+    async getPubgPlayer(shard, pubgName) {
         return await snekfetch.get(`https://api.playbattlegrounds.com/shards/${shard}/players?filter[playerNames]=${pubgName}`, {
             headers: {
                 'Authorization': `Bearer ${this.authkey}`,
@@ -39,8 +46,9 @@ class PUBGApi {
             },
         })
         .then(async data => {
-            const pubgID = data.body.data[0].id;
-            return pubgID;
+            const id = data.body.data[0].id;
+            const name = data.body.data[0].attributes.name;
+            return { id, name };
         })
         .catch((err) => {
             const statusCode = err.status;

@@ -1,5 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('ChickenDinner', {
+        guild_id: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         match_id: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -9,21 +13,14 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: null,
             allowNull: true,
         },
-        player_1: {
-            type: DataTypes.JSON,
+        total_kills: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
             allowNull: false,
         },
-        player_2: {
+        players: {
             type: DataTypes.JSON,
-            allowNull: true,
-        },
-        player_3: {
-            type: DataTypes.JSON,
-            allowNull: true,
-        },
-        player_4: {
-            type: DataTypes.JSON,
-            allowNull: true,
+            allowNull: false,
         },
     }, {
         timestamps: false,

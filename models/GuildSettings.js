@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 'default',
             allowNull: false,
         },
+        icon_background_url: {
+            type: DataTypes.STRING,
+            defaultValue: null,
+            allowNull: true,
+        },
         auto_update_wins: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
@@ -33,6 +38,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             defaultValue: null,
             allowNull: true,
+        },
+        premium: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+            allowNull: false,
         },
     }, {
         timestamps: false,
