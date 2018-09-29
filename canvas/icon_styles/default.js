@@ -3,8 +3,8 @@ const Canvas = require('canvas');
 module.exports = {
     name: 'default',
     description: 'PUBG inspired win counter.',
-    hidden: true,
-    example: 'https://cdn.discordapp.com/attachments/367128440010309634/466782427910635521/file.jpg',
+    hidden: false,
+    example: 'https://i.imgur.com/z3V1wNj.png',
     async createIconCanvas(wins) {
         const applyText = (canvas, text) => {
            const ctx = canvas.getContext('2d');

@@ -4,11 +4,11 @@ module.exports = {
     name: 'neon',
     description: 'A retro neon win counter.',
     hidden: false,
-    example: 'https://cdn.discordapp.com/attachments/367128440010309634/466782420121681930/file.jpg',
+    example: 'https://i.imgur.com/NxJamV1.png',
     async createIconCanvas(wins) {
         const applyText = (canvas, text) => {
            const ctx = canvas.getContext('2d');
-           let fontSize = 110;
+           let fontSize = 200;
 
            do {
                ctx.font = `${fontSize -= 10}px "yukari"`;
@@ -19,10 +19,14 @@ module.exports = {
         const canvas = Canvas.createCanvas(256, 256);
         const ctx = canvas.getContext('2d');
 
-        const background = await Canvas.loadImage('./canvas/icon_styles/odynasty_bg.jpg');
+        const background = await Canvas.loadImage('./canvas/icon_styles/default_bg.jpg').catch(console.error);
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
        
         ctx.font = applyText(canvas, wins);
+        // calculate horizontal center position
+        const xPosition = canvas.width / 2;
+        // calculate vertical position using M as the baseline because that works for some reason????
+        const yPosition = (canvas.height + ctx.measureText('M').width) / 2;
 
         ctx.textAlign = 'center';
 
@@ -36,10 +40,10 @@ module.exports = {
 
         ctx.strokeStyle = grd;
         ctx.lineWidth = 12;
-        ctx.strokeText(wins, canvas.width / 2, canvas.height / 2 + 115);
+        ctx.strokeText(wins, xPosition, yPosition);
 
         ctx.fillStyle = 'white';
-        ctx.fillText(wins, canvas.width / 2, canvas.height / 2 + 115);
+        ctx.fillText(wins, xPosition, yPosition);
 
         return canvas;
     },
