@@ -160,7 +160,9 @@ module.exports = {
         const chosenMatch = dinnersData[matchID];
 
         // create new icon canvas if settings permit, else null
-        const newIcon = (settings.update_icon) ? await Icons.getIcon(settings.icon_style, settings.wins + 1).catch(console.error) : null;
+        const newIcon = (settings.update_icon) ?
+            await Icons.getIcon(settings.icon_style, settings.wins + 1, settings.icon_background_url).catch(console.error)
+            : null;
         let uniqueID = null;
         let imageURL = null;
 

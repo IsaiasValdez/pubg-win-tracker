@@ -18,14 +18,14 @@ Canvas.registerFont('./canvas/icon_styles/yukari.ttf', { family: 'yukari' });
 
 module.exports = {
     // create icon
-    async getIcon(styleName, wins) {
+    async getIcon(styleName, wins, bgUrl) {
         const style = iconStyles.get(styleName);
         if (!style) {
             console.log(`Style: ${styleName} not found!`);
             return await iconStyles.get('default').createIconCanvas(wins); 
         }
 
-        return await style.createIconCanvas(wins);
+        return await style.createIconCanvas(wins, bgUrl);
     },
 
     // request all icon styles

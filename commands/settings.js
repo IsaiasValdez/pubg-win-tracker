@@ -55,7 +55,7 @@ module.exports = {
                 }
                 // update server icon of win change if setting true
                 if (settings.update_icon) {
-                    const newIcon = await Icons.getIcon(settings.icon_style, settingValue);
+                    const newIcon = await Icons.getIcon(settings.icon_style, settingValue, settings.icon_background_url);
                     message.guild.setIcon(newIcon.toBuffer()).then(console.log());
                 }
 
@@ -127,8 +127,9 @@ module.exports = {
                 settings.save();
                 // update icon if setting true
                 if (settings.update_icon) {
-                    const newIcon = await Icons.getIcon(styleName, settings.wins);
-                    message.guild.setIcon(newIcon.toBuffer()).then(console.log());
+                    const bgUrl = settings.icon_background_url;
+                    const newIcon = await Icons.getIcon(styleName, settings.wins, bgUrl);
+                    message.guild.setIcon(newIcon.toBuffer());
                 }
 
                 // alert user of changes
