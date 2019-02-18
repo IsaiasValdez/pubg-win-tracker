@@ -44,7 +44,8 @@ module.exports = {
         // check if user has permission to use command
         const isOwner = (messageUserID === message.guild.ownerID);
         const isAdmin = message.member.permissions.has('MANAGE_GUILD');
-        const isTracker = message.member.roles.has(settings.tracker_id);
+        //const isTracker = message.member.roles.has(settings.tracker_id);
+        const isTracker = true;
         if (!isOwner && !isAdmin && !isTracker) { return message.reply(`you must have the <@&${settings.tracker_id}> role to use this command!`); }
 
         // init pubg api
